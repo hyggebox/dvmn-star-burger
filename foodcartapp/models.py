@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Restaurant(models.Model):
@@ -120,4 +121,51 @@ class RestaurantMenuItem(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.restaurant.name} - {self.product.name}"
+        return f'{self.restaurant.name} - {self.product.name}'
+
+
+class Order(models.Model):
+    first_name = models.CharField('имя', max_length=50)
+    last_name = models.CharField('фамилия', max_length=50)
+    phone_number = PhoneNumberField('номер тел.')
+    address = models.CharField('адрес', max_length=200)
+    products = models.ManyToManyField(
+        Product,
+        through='ProductsQty',
+        verbose_name='товары',
+        related_name='orders',
+        null=True,
+        db_index=True)
+
+    class Meta:
+        verbose_name = 'заказ'
+        verbose_name_plural = 'заказы'
+
+    def __str__(self):
+        return f'{self.last_name} {self.first_name}'
+
+
+class ProductsQty(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        verbose_name='товар',
+        related_name='quantity'
+    )
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        verbose_name='заказ',
+        related_name='quantity'
+    )
+    qty = models.SmallIntegerField(
+        verbose_name='количество',
+        validators=[MinValueValidator(0)],
+    )
+
+    class Meta:
+        verbose_name = 'Количество товаров в заказе'
+        verbose_name_plural = 'Количество товаров в заказе'
+
+    def __str__(self):
+        return str(self.qty)
