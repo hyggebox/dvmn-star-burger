@@ -1,7 +1,6 @@
-import json
-
 from django.http import JsonResponse
 from django.templatetags.static import static
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -64,8 +63,22 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
+    order_details = request.data
     try:
-        order_details = json.loads(request.body.decode())
+        order_products = order_details['products']
+    except KeyError:
+        return Response(
+            {'error': 'products are not presented'},
+            status=status.HTTP_406_NOT_ACCEPTABLE
+        )
+
+    if not order_products or not isinstance(order_products, list):
+        return Response(
+            {'error': 'products are not presented or not list'},
+            status=status.HTTP_406_NOT_ACCEPTABLE
+        )
+
+    try:
         new_order = Order.objects.create(
             first_name=order_details['firstname'],
             last_name=order_details['lastname'],
@@ -79,9 +92,6 @@ def register_order(request):
                 order=new_order,
                 qty=product['quantity']
             )
-
     except ValueError as error:
-        return Response({
-            'error': error,
-        })
+        return Response({'error': error})
     return Response({})
