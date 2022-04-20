@@ -68,7 +68,7 @@ class ProductSerializer(ModelSerializer):
 
 
 class ApplicationSerializer(ModelSerializer):
-    products = ProductSerializer(many=True, allow_empty=False)
+    products = ProductSerializer(many=True, allow_empty=False, write_only=True)
 
     class Meta:
         model = Order
@@ -96,4 +96,6 @@ def register_order(request):
             )
     except ValueError as error:
         return Response({'error': error})
-    return Response({})
+    if serializer.is_valid():
+        return Response(serializer.data)
+    return Response(serializer.errors)
