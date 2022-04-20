@@ -167,4 +167,4 @@ class ProductsQty(models.Model):
         verbose_name_plural = 'Количество товаров в заказе'
 
     def __str__(self):
-        return str(self.qty)
+        return str(self.quantity)
