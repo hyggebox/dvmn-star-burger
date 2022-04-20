@@ -1,3 +1,5 @@
+import phonenumbers
+
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework import status
@@ -64,29 +66,68 @@ def product_list_api(request):
 @api_view(['POST'])
 def register_order(request):
     order_details = request.data
-    try:
-        order_products = order_details['products']
-    except KeyError:
+
+    fields_names = ['products', 'firstname', 'lastname', 'phonenumber', 'address']
+    for field in fields_names:
+        if field not in order_details.keys():
+            return Response(
+                {'error': f'{field} is not presented'},
+                status=status.HTTP_406_NOT_ACCEPTABLE
+            )
+
+    order_products = order_details['products']
+    first_name = order_details['firstname']
+    last_name = order_details['lastname']
+    address = order_details['address']
+    user_phonenumber = order_details['phonenumber']
+
+    if not all([order_products, first_name, last_name, address, user_phonenumber]):
         return Response(
-            {'error': 'products are not presented'},
+            {'error': 'all fields must be filled'},
             status=status.HTTP_406_NOT_ACCEPTABLE
         )
 
-    if not order_products or not isinstance(order_products, list):
+    if not all(list(map(lambda field: isinstance(field, str),
+                        [first_name, last_name, address, user_phonenumber]))):
         return Response(
-            {'error': 'products are not presented or not list'},
+            {'error': 'fields firstname, lastname, address, '
+                      'phonenumber must be strings'},
             status=status.HTTP_406_NOT_ACCEPTABLE
         )
+
+    if not isinstance(order_products, list):
+        return Response(
+            {'error': 'products are not list'},
+            status=status.HTTP_406_NOT_ACCEPTABLE
+        )
+
+
+    parsed_phonenumber = phonenumbers.parse(user_phonenumber, "RU")
+    if not phonenumbers.is_valid_number(parsed_phonenumber):
+        return Response(
+            {'error': 'invalid phone number'},
+            status=status.HTTP_406_NOT_ACCEPTABLE
+        )
+    formatted_phonenumber = phonenumbers.format_number(
+        parsed_phonenumber,
+        phonenumbers.PhoneNumberFormat.E164
+    )
 
     try:
         new_order = Order.objects.create(
-            first_name=order_details['firstname'],
-            last_name=order_details['lastname'],
-            phone_number=order_details['phonenumber'],
-            address=order_details['address'],
+            first_name=first_name,
+            last_name=last_name,
+            phone_number=formatted_phonenumber,
+            address=address,
         )
         for product in order_details['products']:
-            product_instance = Product.objects.get(pk=product['product'])
+            try:
+                product_instance = Product.objects.get(pk=product['product'])
+            except Product.DoesNotExist:
+                return Response(
+                    {'error': 'invalid product id'},
+                    status=status.HTTP_406_NOT_ACCEPTABLE
+                )
             ProductsQty.objects.create(
                 product=product_instance,
                 order=new_order,
