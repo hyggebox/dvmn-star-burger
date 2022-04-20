@@ -125,16 +125,15 @@ class RestaurantMenuItem(models.Model):
 
 
 class Order(models.Model):
-    first_name = models.CharField('имя', max_length=50)
-    last_name = models.CharField('фамилия', max_length=50)
-    phone_number = PhoneNumberField('номер тел.')
+    firstname = models.CharField('имя', max_length=50)
+    lastname = models.CharField('фамилия', max_length=50)
+    phonenumber = PhoneNumberField('номер тел.')
     address = models.CharField('адрес', max_length=200)
     products = models.ManyToManyField(
         Product,
         through='ProductsQty',
         verbose_name='товары',
         related_name='orders',
-        null=True,
         db_index=True)
 
     class Meta:
@@ -158,7 +157,7 @@ class ProductsQty(models.Model):
         verbose_name='заказ',
         related_name='quantity'
     )
-    qty = models.SmallIntegerField(
+    quantity = models.SmallIntegerField(
         verbose_name='количество',
         validators=[MinValueValidator(0)],
     )
