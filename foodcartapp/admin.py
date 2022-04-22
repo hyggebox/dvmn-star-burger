@@ -1,7 +1,11 @@
+import urllib
+
 from django.contrib import admin
-from django.shortcuts import reverse
+from django.shortcuts import reverse, redirect
 from django.templatetags.static import static
+from django.utils.encoding import iri_to_uri
 from django.utils.html import format_html
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from .models import (Order,
                      Product,
@@ -117,6 +121,13 @@ class OrderInline(admin.TabularInline):
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'phonenumber', 'address']
     inlines = [OrderInline]
+
+    def response_change(self, request, obj):
+        response = super(ProductAdmin, self).response_change(request, obj)
+        previous_url = request.GET['next']
+        if url_has_allowed_host_and_scheme(previous_url, None):
+            return redirect(previous_url)
+        return response
 
 
 @admin.register(ProductsQty)
