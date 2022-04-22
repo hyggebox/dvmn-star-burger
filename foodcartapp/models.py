@@ -128,7 +128,7 @@ class RestaurantMenuItem(models.Model):
 
 class OrderQuerySet(models.QuerySet):
     def get_total(self):
-        total_price = self.annotate(total_price=Sum(F('quantity__quantity') * F('quantity__product__price')))
+        total_price = self.annotate(total_price=Sum(F('quantity__quantity') * F('quantity__order_price')))
         return total_price
 
 
@@ -159,22 +159,30 @@ class ProductsQty(models.Model):
         Product,
         on_delete=models.CASCADE,
         verbose_name='товар',
-        related_name='quantity'
+        related_name='quantity',
+        db_index=True
     )
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
         verbose_name='заказ',
-        related_name='quantity'
+        related_name='quantity',
+        db_index=True
     )
     quantity = models.SmallIntegerField(
         verbose_name='количество',
         validators=[MinValueValidator(0)],
     )
+    order_price = models.DecimalField(
+        verbose_name='цена',
+        max_digits=8,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+    )
 
     class Meta:
-        verbose_name = 'Количество товаров в заказе'
-        verbose_name_plural = 'Количество товаров в заказе'
+        verbose_name = 'Товары в заказе'
+        verbose_name_plural = 'Товары в заказе'
 
     def __str__(self):
-        return str(self.quantity)
+        return f'{self.order.id} | {self.order}'

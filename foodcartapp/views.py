@@ -1,6 +1,8 @@
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
@@ -80,7 +82,7 @@ def register_order(request):
     serializer = ApplicationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    try:
+    if serializer.is_valid():
         new_order = Order.objects.create(
             firstname=serializer.validated_data['firstname'],
             lastname=serializer.validated_data['lastname'],
@@ -92,10 +94,9 @@ def register_order(request):
             ProductsQty.objects.create(
                 product=product['product'],
                 order=new_order,
-                quantity=product['quantity']
+                quantity=product['quantity'],
+                order_price=product['product'].price
             )
-    except ValueError as error:
-        return Response({'error': error})
-    if serializer.is_valid():
         return Response(serializer.data)
+
     return Response(serializer.errors)
