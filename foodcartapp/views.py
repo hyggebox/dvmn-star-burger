@@ -1,8 +1,7 @@
-from django.core.exceptions import NON_FIELD_ERRORS
+from django.db import transaction
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
@@ -78,6 +77,7 @@ class ApplicationSerializer(ModelSerializer):
 
 
 @api_view(['POST'])
+@transaction.atomic
 def register_order(request):
     serializer = ApplicationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
