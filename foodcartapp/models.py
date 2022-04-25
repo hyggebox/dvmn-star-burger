@@ -143,7 +143,8 @@ class Order(models.Model):
         verbose_name='Статус заказа',
         max_length=20,
         choices=STATUS_CHOICES,
-        default=UNPROCESSED
+        default=UNPROCESSED,
+        db_index=True
     )
 
     firstname = models.CharField('имя', max_length=50)
@@ -155,7 +156,7 @@ class Order(models.Model):
         through='ProductsQty',
         verbose_name='товары',
         related_name='orders',
-        db_index=True)
+        )
 
     objects = OrderQuerySet.as_manager()
 
@@ -173,24 +174,24 @@ class ProductsQty(models.Model):
         on_delete=models.CASCADE,
         verbose_name='товар',
         related_name='quantity',
-        db_index=True
     )
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
         verbose_name='заказ',
         related_name='quantity',
-        db_index=True
     )
     quantity = models.SmallIntegerField(
         verbose_name='количество',
         validators=[MinValueValidator(0)],
+        db_index=True
     )
     order_price = models.DecimalField(
         verbose_name='цена',
         max_digits=8,
         decimal_places=2,
         validators=[MinValueValidator(0)],
+        db_index=True
     )
 
     class Meta:
