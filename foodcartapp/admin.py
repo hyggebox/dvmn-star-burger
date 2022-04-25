@@ -118,8 +118,9 @@ class OrderInline(admin.TabularInline):
 
 
 @admin.register(Order)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'phonenumber', 'address']
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'phonenumber', 'address', 'status']
+    list_editable = ['status']
     inlines = [OrderInline]
 
     def response_change(self, request, obj):
