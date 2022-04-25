@@ -157,6 +157,7 @@ class Order(models.Model):
         verbose_name='товары',
         related_name='orders',
         )
+    comment = models.TextField('комментарий', blank=True)
 
     objects = OrderQuerySet.as_manager()
 
