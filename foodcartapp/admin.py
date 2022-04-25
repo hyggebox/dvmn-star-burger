@@ -124,8 +124,8 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderInline]
 
     def response_change(self, request, obj):
-        response = super(ProductAdmin, self).response_change(request, obj)
-        previous_url = request.GET['next']
+        response = super(OrderAdmin, self).response_change(request, obj)
+        previous_url = request.GET.get('next', None)
         if url_has_allowed_host_and_scheme(previous_url, None):
             return redirect(previous_url)
         return response
