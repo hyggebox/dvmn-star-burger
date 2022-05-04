@@ -96,6 +96,13 @@ class Product(models.Model):
         return self.name
 
 
+class RestaurantMenuItemQuerySet(models.QuerySet):
+
+    def get_available_restaurants(self):
+        return self.filter(availability=True).prefetch_related('product',
+                                                               'restaurant')
+
+
 class RestaurantMenuItem(models.Model):
     restaurant = models.ForeignKey(
         Restaurant,
@@ -115,6 +122,8 @@ class RestaurantMenuItem(models.Model):
         db_index=True
     )
 
+    objects = RestaurantMenuItemQuerySet.as_manager()
+
     class Meta:
         verbose_name = 'пункт меню ресторана'
         verbose_name_plural = 'пункты меню ресторана'
@@ -127,9 +136,13 @@ class RestaurantMenuItem(models.Model):
 
 
 class OrderQuerySet(models.QuerySet):
+
     def get_total(self):
         total_price = self.annotate(total_price=Sum(F('quantity__quantity') * F('quantity__order_price')))
         return total_price
+
+    def get_restaurants(self):
+        return self.prefetch_related('products__menu_items__restaurant')
 
 
 class Order(models.Model):

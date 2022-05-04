@@ -1,3 +1,6 @@
+from functools import reduce
+from collections import defaultdict
+
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
@@ -8,7 +11,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 
-from foodcartapp.models import Product, Restaurant, Order
+from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
 
 
 class Login(forms.Form):
@@ -95,9 +98,30 @@ def view_restaurants(request):
     })
 
 
+def get_available_restaurants(orders):
+    available_restaurants = defaultdict(list)
+    for rest_menu_item in RestaurantMenuItem.objects.get_available_restaurants():
+        available_restaurants[rest_menu_item.product].append(rest_menu_item.restaurant)
+
+    for order in orders:
+        order_products_restaurants = []
+        order_products = order.products.all()
+
+        for product in order_products:
+            order_products_restaurants.append(available_restaurants[product])
+
+        order_restaurants = set.intersection(*map(set, order_products_restaurants))
+        order.available_restaurants = order_restaurants
+
+    return orders
+
+
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    orders = Order.objects.get_total().get_restaurants()
+    get_available_restaurants(orders)
+
     return render(request, template_name='order_items.html', context={
-        'order_items': Order.objects.get_total(),
+        'orders': orders,
         'request': request
     })

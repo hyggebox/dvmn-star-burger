@@ -22,21 +22,36 @@
       <th>Адрес доставки</th>
       <th>Комментарий</th>
       <th>Админка</th>
+      <th>Заказ</th>
     </tr>
 
-    {% for item in order_items %}
-      {% if item.status == 'unprocessed' %}
+    {% for order in orders %}
+      {% if order.status == 'unprocessed' %}
         <tr>
-          <td>{{ item.id }}</td>
-          <td>{{ item.get_status_display }}</td>
-          <td>{{ item.get_payment_method_display }}</td>
-          <td>{{ item.total_price }} руб.</td>
-          <td>{{ item.lastname }} {{ item.firstname}}</td>
-          <td>{{ item.phonenumber }}</td>
-          <td>{{ item.address }}</td>
-          <td>{{ item.comment }}</td>
+          <td>{{ order.id }}</td>
+          <td>{{ order.get_status_display }}</td>
+          <td>{{ order.get_payment_method_display }}</td>
+          <td>{{ order.total_price }} руб.</td>
+          <td>{{ order.lastname }} {{ order.firstname}}</td>
+          <td>{{ order.phonenumber }}</td>
+          <td>{{ order.address }}</td>
+          <td>{{ order.comment }}</td>
           <td>
-            <a href="{% url 'admin:foodcartapp_order_change' object_id=item.id %}?next={{ request.get_full_path|urlencode:'' }}">Редактировать</a>
+            <a href="{% url 'admin:foodcartapp_order_change' object_id=order.id %}?next={{ request.get_full_path|urlencode:'' }}">Редактировать</a>
+          </td>
+          <td>
+            <details>
+              <summary>▽&nbsp;Открыть</summary>
+              <ul>
+                {% if order.available_restaurants %}
+                  {% for restaurant in order.available_restaurants %}
+                  <li>{{ restaurant }}</li>
+                  {% endfor %}
+                {% else %}
+                  <li>Нет ресторана, где можно собрать заказ полностью</li>
+                {% endif %}
+              </ul>
+            </details>
           </td>
         </tr>
       {% endif %}
