@@ -1,5 +1,8 @@
-from functools import reduce
 from collections import defaultdict
+from environs import Env
+
+from geopy import distance
+import requests
 
 from django import forms
 from django.shortcuts import redirect, render
@@ -12,6 +15,10 @@ from django.contrib.auth import views as auth_views
 
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+
+
+env = Env()
+env.read_env()
 
 
 class Login(forms.Form):
@@ -98,7 +105,31 @@ def view_restaurants(request):
     })
 
 
-def get_available_restaurants(orders):
+def fetch_coordinates(apikey, address):
+    base_url = "https://geocode-maps.yandex.ru/1.x"
+    response = requests.get(base_url, params={
+        "geocode": address,
+        "apikey": apikey,
+        "format": "json",
+    })
+    response.raise_for_status()
+    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+
+    if not found_places:
+        return None
+
+    most_relevant = found_places[0]
+    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+    return lat, lon
+
+
+def count_distance(yandex_api_key, from_place, to_place):
+    from_coord = fetch_coordinates(yandex_api_key, from_place)
+    to_coord = fetch_coordinates(yandex_api_key, to_place)
+    return round((distance.distance(from_coord, to_coord).km), 2)
+
+
+def get_available_restaurants(orders, yandex_api_key):
     available_restaurants = defaultdict(list)
     for rest_menu_item in RestaurantMenuItem.objects.get_available_restaurants():
         available_restaurants[rest_menu_item.product].append(rest_menu_item.restaurant)
@@ -111,15 +142,25 @@ def get_available_restaurants(orders):
             order_products_restaurants.append(available_restaurants[product])
 
         order_restaurants = set.intersection(*map(set, order_products_restaurants))
-        order.available_restaurants = order_restaurants
 
+        order_restaurants_w_distances = [(restaurant.name,
+                                          count_distance(yandex_api_key,
+                                                         restaurant.address,
+                                                         order.address))
+                                         for restaurant in order_restaurants]
+
+        order.available_restaurants = sorted(order_restaurants_w_distances,
+                                             key=lambda rest_data: rest_data[1])
     return orders
 
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    yandex_api_key = env.str('YANDEX_API_KEY')
+
     orders = Order.objects.get_total().get_restaurants()
-    get_available_restaurants(orders)
+    get_available_restaurants(orders, yandex_api_key)
+    # get_distances(orders, yandex_api_key)
 
     return render(request, template_name='order_items.html', context={
         'orders': orders,
