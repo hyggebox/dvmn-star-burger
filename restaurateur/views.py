@@ -104,7 +104,7 @@ def count_distance(from_place, to_place, places_coords):
     coord_to_count = []
     for place in [from_place, to_place]:
         if places_coords[place]:
-            coord_to_count.append(places_coords[from_place])
+            coord_to_count.append(places_coords[place])
         else:
             place_instance = PlaceCoordinates.objects.filter(
                 address=place).first()
