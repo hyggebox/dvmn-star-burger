@@ -5,9 +5,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
-from .models import Product
-from .models import ProductsQty
-from .models import Order
+from coordinates.fetch_coords import save_coordinates
+from .models import Order, Product, ProductsQty
 
 
 def banners_list_api(request):
@@ -83,12 +82,16 @@ def register_order(request):
     serializer.is_valid(raise_exception=True)
 
     if serializer.is_valid():
+        order_address = serializer.validated_data['address']
+
         new_order = Order.objects.create(
             firstname=serializer.validated_data['firstname'],
             lastname=serializer.validated_data['lastname'],
             phonenumber=serializer.validated_data['phonenumber'],
-            address=serializer.validated_data['address'],
+            address=order_address,
         )
+
+        save_coordinates(order_address)
 
         for product in serializer.validated_data['products']:
             ProductsQty.objects.create(

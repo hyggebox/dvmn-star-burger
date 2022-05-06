@@ -2,7 +2,11 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.db.models import F, Sum
 from django.utils import timezone
+
 from phonenumber_field.modelfields import PhoneNumberField
+
+from coordinates.models import PlaceCoordinates
+from coordinates.fetch_coords import fetch_coordinates, save_coordinates
 
 
 class Restaurant(models.Model):
@@ -27,6 +31,9 @@ class Restaurant(models.Model):
 
     def __str__(self):
         return self.name
+
+    def fetch_coords(self):
+        save_coordinates(self.address)
 
 
 class ProductQuerySet(models.QuerySet):
@@ -138,11 +145,16 @@ class RestaurantMenuItem(models.Model):
 class OrderQuerySet(models.QuerySet):
 
     def get_total(self):
-        total_price = self.annotate(total_price=Sum(F('quantity__quantity') * F('quantity__order_price')))
+        total_price = self.annotate(
+            total_price=Sum(F('quantity__quantity') * F('quantity__order_price'))
+        )
         return total_price
 
     def get_restaurants(self):
         return self.prefetch_related('products__menu_items__restaurant')
+
+    def get_unprocessed(self):
+        return self.filter(status='unprocessed')
 
 
 class Order(models.Model):
@@ -215,6 +227,9 @@ class Order(models.Model):
 
     def __str__(self):
         return f'{self.lastname} {self.firstname}'
+
+    def fetch_coords(self):
+        save_coordinates(self.address)
 
 
 class ProductsQty(models.Model):
