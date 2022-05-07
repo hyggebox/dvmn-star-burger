@@ -1,9 +1,11 @@
-django==3.2
-django-debug-toolbar==3.2.1
-Pillow==8.2.0
-environs[django]==9.3.2
+Django==4.0.4
+django-debug-toolbar==3.2.4
 django-phonenumber-field==6.1.0
 djangorestframework==3.13.1
-requests==2.27.1
+environs==9.5.0
 geopy==2.2.0
+phonenumbers==8.12.46
+Pillow==9.1.0
+requests==2.27.1
+
 
