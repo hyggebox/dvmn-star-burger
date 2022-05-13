@@ -186,7 +186,6 @@ class Order(models.Model):
         verbose_name='Способ оплаты',
         max_length=30,
         choices=PAYMENT_CHOICES,
-        default=BANK_CARD,
         db_index=True
     )
     firstname = models.CharField('имя', max_length=50)
