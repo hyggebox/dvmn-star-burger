@@ -245,7 +245,7 @@ class ProductsQty(models.Model):
     )
     quantity = models.SmallIntegerField(
         verbose_name='количество',
-        validators=[MinValueValidator(0)],
+        validators=[MinValueValidator(1)],
         db_index=True
     )
     order_price = models.DecimalField(
