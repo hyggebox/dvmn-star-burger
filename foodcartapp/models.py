@@ -164,6 +164,17 @@ class Order(models.Model):
         (UNPROCESSED, 'Необработанный'),
         (PROCESSED, 'Обработанный'),
     ]
+
+    CASH = 'cash'
+    BANK_CARD = 'card'
+    IMMEDIATE = 'immediate'
+
+    PAYMENT_CHOICES = [
+        (IMMEDIATE, '✅ Сразу'),
+        (BANK_CARD, '💳 Картой'),
+        (CASH, '💵 Наличными')
+    ]
+
     status = models.CharField(
         verbose_name='Статус заказа',
         max_length=20,
@@ -171,7 +182,13 @@ class Order(models.Model):
         default=UNPROCESSED,
         db_index=True
     )
-
+    payment_method = models.CharField(
+        verbose_name='Способ оплаты',
+        max_length=30,
+        choices=PAYMENT_CHOICES,
+        default=BANK_CARD,
+        db_index=True
+    )
     firstname = models.CharField('имя', max_length=50)
     lastname = models.CharField('фамилия', max_length=50)
     phonenumber = PhoneNumberField('номер тел.', db_index=True)
@@ -183,24 +200,6 @@ class Order(models.Model):
         related_name='orders',
         )
     comment = models.TextField('комментарий', blank=True)
-
-    CASH = 'cash'
-    BANK_CARD = 'card'
-    IMMEDIATE = 'immediate'
-
-    PAYMENT_CHOICES = [
-        (IMMEDIATE, '✅ Сразу'),
-        (BANK_CARD, '💳 Картой'),
-        (CASH, '💵 Наличными')
-    ]
-    payment_method = models.CharField(
-        verbose_name='Способ оплаты',
-        max_length=30,
-        choices=PAYMENT_CHOICES,
-        default=BANK_CARD,
-        db_index=True
-    )
-
     registered_at = models.DateTimeField(
         'Создан',
         default=timezone.now,
