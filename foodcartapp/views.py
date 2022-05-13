@@ -81,25 +81,26 @@ def register_order(request):
     serializer = ApplicationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    if serializer.is_valid():
-        order_address = serializer.validated_data['address']
+    if not serializer.is_valid():
+        return Response(serializer.errors)
 
-        new_order = Order.objects.create(
-            firstname=serializer.validated_data['firstname'],
-            lastname=serializer.validated_data['lastname'],
-            phonenumber=serializer.validated_data['phonenumber'],
-            address=order_address,
+    order_address = serializer.validated_data['address']
+
+    new_order = Order.objects.create(
+        firstname=serializer.validated_data['firstname'],
+        lastname=serializer.validated_data['lastname'],
+        phonenumber=serializer.validated_data['phonenumber'],
+        address=order_address,
+    )
+    save_coordinates(order_address)
+
+    for product in serializer.validated_data['products']:
+        ProductsQty.objects.create(
+            product=product['product'],
+            order=new_order,
+            quantity=product['quantity'],
+            order_price=product['product'].price
         )
+    return Response(serializer.data)
 
-        save_coordinates(order_address)
 
-        for product in serializer.validated_data['products']:
-            ProductsQty.objects.create(
-                product=product['product'],
-                order=new_order,
-                quantity=product['quantity'],
-                order_price=product['product'].price
-            )
-        return Response(serializer.data)
-
-    return Response(serializer.errors)
