@@ -6,9 +6,9 @@ from foodcartapp.models import Order, Restaurant
 
 @receiver(post_save, sender=Order)
 def is_order_changed(sender, instance=None, created=False, **kwargs):
-    instance.fetch_coords()
+    instance.save_coords()
 
 
 @receiver(post_save, sender=Restaurant)
 def is_order_changed(sender, instance=None, created=False, **kwargs):
-    instance.fetch_coords()
+    instance.save_coords()

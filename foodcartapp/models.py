@@ -32,7 +32,7 @@ class Restaurant(models.Model):
     def __str__(self):
         return self.name
 
-    def fetch_coords(self):
+    def save_coords(self):
         save_coordinates(self.address)
 
 
@@ -226,7 +226,7 @@ class Order(models.Model):
     def __str__(self):
         return f'{self.lastname} {self.firstname}'
 
-    def fetch_coords(self):
+    def save_coords(self):
         save_coordinates(self.address)
 
 
