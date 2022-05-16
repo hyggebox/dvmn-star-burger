@@ -1,7 +1,3 @@
-from collections import defaultdict
-
-from geopy import distance
-
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
@@ -13,7 +9,6 @@ from django.contrib.auth import views as auth_views
 
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
-from coordinates.models import PlaceCoordinates
 
 
 class Login(forms.Form):
@@ -100,49 +95,6 @@ def view_restaurants(request):
     })
 
 
-def count_distance(from_place, to_place, places_coords):
-    coord_to_count = []
-    for place in [from_place, to_place]:
-        if places_coords[place]:
-            coord_to_count.append(places_coords[place])
-        else:
-            place_instance = PlaceCoordinates.objects.filter(
-                address=place).first()
-            if not place_instance or not place_instance.lat:
-                return 'не удалось вычислить расстояние, нет координат места'
-            coord_to_count.append((place_instance.lat, place_instance.lon))
-            places_coords[place] = (place_instance.lat, place_instance.lon)
-
-    return round((distance.distance(coord_to_count[0], coord_to_count[1]).km), 2)
-
-
-def get_available_restaurants(orders):
-    available_restaurants = defaultdict(list)
-    places_coords = defaultdict(tuple)
-
-    for rest_menu_item in RestaurantMenuItem.objects.get_available_restaurants():
-        available_restaurants[rest_menu_item.product].append(rest_menu_item.restaurant)
-
-    for order in orders:
-        order_products_restaurants = []
-        order_products = order.products.all()
-
-        for product in order_products:
-            order_products_restaurants.append(available_restaurants[product])
-
-        order_restaurants = set.intersection(*map(set, order_products_restaurants))
-
-        order_restaurants_w_distances = [(restaurant.name,
-                                          count_distance(restaurant.address,
-                                                         order.address,
-                                                         places_coords))
-                                         for restaurant in order_restaurants]
-
-        order.available_restaurants = sorted(order_restaurants_w_distances,
-                                             key=lambda rest_data: rest_data[1])
-    return orders
-
-
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = Order.objects.get_total_price().get_unprocessed().get_restaurants().defer(
@@ -150,7 +102,7 @@ def view_orders(request):
         'called_at',
         'delivered_at'
     )
-    get_available_restaurants(orders)
+    RestaurantMenuItem.objects.get_available_restaurants(orders)
 
     return render(request, template_name='order_items.html', context={
         'orders': orders,
