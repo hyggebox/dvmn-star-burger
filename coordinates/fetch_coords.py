@@ -33,6 +33,4 @@ def save_coordinates(address):
             new_address.lat, new_address.lon = place_coordinates
             new_address.save_date = timezone.now()
             new_address.save()
-        else:
-            new_address.delete()
 

@@ -108,7 +108,7 @@ def count_distance(from_place, to_place, places_coords):
         else:
             place_instance = PlaceCoordinates.objects.filter(
                 address=place).first()
-            if not place_instance:
+            if not place_instance or not place_instance.lat:
                 return 'не удалось вычислить расстояние, нет координат места'
             coord_to_count.append((place_instance.lat, place_instance.lon))
             places_coords[place] = (place_instance.lat, place_instance.lon)
