@@ -94,13 +94,15 @@ def register_order(request):
     )
     save_coordinates(order_address)
 
-    for product in serializer.validated_data['products']:
-        ProductsQty.objects.create(
+    products = [
+        ProductsQty(
             product=product['product'],
             order=new_order,
             quantity=product['quantity'],
             order_price=product['product'].price
-        )
+        ) for product in serializer.validated_data['products']
+    ]
+    ProductsQty.objects.bulk_create(products)
     return Response(serializer.data)
 
 
