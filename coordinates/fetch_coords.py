@@ -31,6 +31,5 @@ def save_coordinates(address):
         place_coordinates = fetch_coordinates(address)
         if place_coordinates:
             new_address.lat, new_address.lon = place_coordinates
-            new_address.save_date = timezone.now()
             new_address.save()
 

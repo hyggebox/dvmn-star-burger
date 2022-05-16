@@ -22,6 +22,7 @@ class PlaceCoordinates(models.Model):
     )
     save_date = models.DateTimeField(
         'дата актуализации',
+        auto_now=True,
         db_index=True,
         null=True
     )
