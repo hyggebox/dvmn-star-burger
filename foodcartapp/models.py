@@ -8,7 +8,7 @@ from geopy import distance
 from phonenumber_field.modelfields import PhoneNumberField
 
 from coordinates.models import PlaceCoordinates
-from coordinates.fetch_coords import fetch_coordinates, save_coordinates
+from coordinates.fetch_coords import save_coordinates
 
 
 class Restaurant(models.Model):

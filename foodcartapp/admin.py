@@ -1,9 +1,6 @@
-import urllib
-
 from django.contrib import admin
 from django.shortcuts import reverse, redirect
 from django.templatetags.static import static
-from django.utils.encoding import iri_to_uri
 from django.utils.html import format_html
 from django.utils.http import url_has_allowed_host_and_scheme
 
@@ -35,6 +32,11 @@ class RestaurantAdmin(admin.ModelAdmin):
     inlines = [
         RestaurantMenuItemInline
     ]
+
+    def save_model(self, request, obj, form, change):
+        if 'address' in form.changed_data:
+            obj.save_coords()
+        return super().save_model(request, obj, form, change)
 
 
 @admin.register(Product)
@@ -129,6 +131,11 @@ class OrderAdmin(admin.ModelAdmin):
         if url_has_allowed_host_and_scheme(previous_url, None):
             return redirect(previous_url)
         return response
+
+    def save_model(self, request, obj, form, change):
+        if 'address' in form.changed_data:
+            obj.save_coords()
+        return super().save_model(request, obj, form, change)
 
 
 @admin.register(ProductsQty)
