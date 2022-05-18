@@ -125,11 +125,10 @@ class RestaurantMenuItemQuerySet(models.QuerySet):
 
     def get_available_restaurants(self, orders):
         available_restaurants = defaultdict(list)
-        places_coords = defaultdict(tuple)
+        available_rests_for_products = self.filter(
+            availability=True).prefetch_related('product', 'restaurant')
 
-        available_rests_queryset = self.filter(availability=True).prefetch_related('product', 'restaurant')
-
-        for rest_menu_item in available_rests_queryset:
+        for rest_menu_item in available_rests_for_products:
             available_restaurants[rest_menu_item.product].append(
                 rest_menu_item.restaurant)
 
@@ -144,17 +143,29 @@ class RestaurantMenuItemQuerySet(models.QuerySet):
             order_restaurants = set.intersection(
                 *map(set, order_products_restaurants))
 
-            order_restaurants_w_distances = [(restaurant.name,
-                                              count_distance(
-                                                  restaurant.address,
-                                                  order.address,
-                                                  places_coords))
-                                             for restaurant in
-                                             order_restaurants]
+            order.available_restaurants = order_restaurants
+        return orders
 
-            order.available_restaurants = sorted(order_restaurants_w_distances,
-                                                 key=lambda rest_data:
-                                                 rest_data[1])
+    def get_distances(self, orders):
+        places_coords = defaultdict(tuple)
+        for order in orders:
+            try:
+                order.available_restaurants
+            except AttributeError:
+                self.get_available_restaurants(orders)
+            finally:
+                order_restaurants_w_distances = [(restaurant.name,
+                                                  count_distance(
+                                                      restaurant.address,
+                                                      order.address,
+                                                      places_coords))
+                                                 for restaurant in
+                                                 order.available_restaurants]
+
+                order.available_restaurants = sorted(
+                    order_restaurants_w_distances,
+                    key=lambda rest_data:
+                    rest_data[1])
         return orders
 
 

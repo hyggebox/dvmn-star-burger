@@ -102,7 +102,7 @@ def view_orders(request):
         'called_at',
         'delivered_at'
     )
-    RestaurantMenuItem.objects.get_available_restaurants(orders)
+    RestaurantMenuItem.objects.get_distances(orders)
 
     return render(request, template_name='order_items.html', context={
         'orders': orders,
