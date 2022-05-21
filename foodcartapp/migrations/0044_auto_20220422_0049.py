@@ -2,21 +2,23 @@ from django.db import migrations
 
 
 def get_prices(apps, schema_editor):
-    Order = apps.get_model('foodcartapp', 'Order')
+    ProductInOrder = apps.get_model('foodcartapp', 'ProductInOrder')
 
-    for order in Order.objects.all().iterator():
-        for product_qty in order.quantity.all().iterator():
-            price = product_qty.product.price
-            product_qty.order_price = price
-            product_qty.save()
+    product_in_order_query = ProductInOrder.objects.all()
+    for product_in_order in product_in_order_query.iterator():
+        if not product_in_order.order_price:
+            price = product_in_order.product.price
+            product_in_order.order_price = price
+            product_in_order.save()
 
 
 def move_backwards(apps, schema_editor):
-    Order = apps.get_model('foodcartapp', 'Order')
-    for order in Order.objects.all().iterator():
-        for product_qty in order.quantity.all().iterator():
-            product_qty.order_price = None
-            product_qty.save()
+    ProductInOrder = apps.get_model('foodcartapp', 'ProductInOrder')
+
+    product_in_order_query = ProductInOrder.objects.all()
+    for product_in_order in product_in_order_query.iterator():
+        product_in_order.order_price = None
+        product_in_order.save()
 
 
 class Migration(migrations.Migration):
