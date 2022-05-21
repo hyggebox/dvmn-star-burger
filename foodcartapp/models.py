@@ -226,10 +226,10 @@ class Order(models.Model):
 
     CASH = 'cash'
     BANK_CARD = 'card'
-    IMMEDIATE = 'immediate'
+    ONLINE = 'online'
 
     PAYMENT_CHOICES = [
-        (IMMEDIATE, '✅ Сразу'),
+        (ONLINE, '✅ Картой на сайте'),
         (BANK_CARD, '💳 Картой'),
         (CASH, '💵 Наличными')
     ]
