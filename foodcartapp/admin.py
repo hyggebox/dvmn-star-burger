@@ -126,11 +126,10 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderInline]
 
     def response_change(self, request, obj):
-        response = super(OrderAdmin, self).response_change(request, obj)
         previous_url = request.GET.get('next', None)
         if url_has_allowed_host_and_scheme(previous_url, None):
             return redirect(previous_url)
-        return response
+        return super().response_change(request, obj)
 
     def save_model(self, request, obj, form, change):
         if 'address' in form.changed_data:
