@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
 from coordinates.fetch_coords import save_coordinates
-from .models import Order, Product, ProductsQty
+from .models import Order, Product, ProductInOrder
 
 
 def banners_list_api(request):
@@ -63,7 +63,7 @@ def product_list_api(request):
 
 class ProductSerializer(ModelSerializer):
     class Meta:
-        model = ProductsQty
+        model = ProductInOrder
         fields = ['product', 'quantity']
 
 
@@ -95,14 +95,14 @@ def register_order(request):
     save_coordinates(order_address)
 
     products = [
-        ProductsQty(
+        ProductInOrder(
             product=product['product'],
             order=new_order,
             quantity=product['quantity'],
             order_price=product['product'].price
         ) for product in serializer.validated_data['products']
     ]
-    ProductsQty.objects.bulk_create(products)
+    ProductInOrder.objects.bulk_create(products)
     return Response(serializer.data)
 
 

@@ -7,7 +7,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from .models import (Order,
                      Product,
                      ProductCategory,
-                     ProductsQty,
+                     ProductInOrder,
                      Restaurant,
                      RestaurantMenuItem)
 
@@ -138,8 +138,8 @@ class OrderAdmin(admin.ModelAdmin):
         return super().save_model(request, obj, form, change)
 
 
-@admin.register(ProductsQty)
-class ProductsQty(admin.ModelAdmin):
+@admin.register(ProductInOrder)
+class ProductInOrderAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'product', 'order_price', 'quantity']
     list_editable = ['order_price', 'quantity']
     raw_id_fields = ('product', 'order')

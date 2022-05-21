@@ -253,7 +253,7 @@ class Order(models.Model):
     address = models.CharField('адрес', max_length=200)
     products = models.ManyToManyField(
         Product,
-        through='ProductsQty',
+        through='ProductInOrder',
         verbose_name='товары',
         related_name='orders',
         )
@@ -289,7 +289,7 @@ class Order(models.Model):
         save_coordinates(self.address)
 
 
-class ProductsQty(models.Model):
+class ProductInOrder(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
