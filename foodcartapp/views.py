@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
-from coordinates.fetch_coords import save_coordinates
+from coordinates.coords_handlers import save_coordinates
 from .models import Order, Product, ProductInOrder
 
 

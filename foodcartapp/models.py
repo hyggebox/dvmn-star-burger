@@ -4,11 +4,10 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.db.models import F, Sum
 from django.utils import timezone
-from geopy import distance
+
 from phonenumber_field.modelfields import PhoneNumberField
 
-from coordinates.models import PlaceCoordinates
-from coordinates.fetch_coords import save_coordinates
+from coordinates.coords_handlers import save_coordinates, count_distance
 
 
 class Restaurant(models.Model):
@@ -103,22 +102,6 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
-
-def count_distance(from_place, to_place, places_coords):
-    coord_to_count = []
-    for place in [from_place, to_place]:
-        if places_coords[place]:
-            coord_to_count.append(places_coords[place])
-        else:
-            place_instance = PlaceCoordinates.objects.filter(
-                address=place).first()
-            if not place_instance or not place_instance.lat:
-                return 'не удалось вычислить расстояние, нет координат места'
-            coord_to_count.append((place_instance.lat, place_instance.lon))
-            places_coords[place] = (place_instance.lat, place_instance.lon)
-
-    return round((distance.distance(coord_to_count[0], coord_to_count[1]).km), 2)
 
 
 class RestaurantMenuItemQuerySet(models.QuerySet):
