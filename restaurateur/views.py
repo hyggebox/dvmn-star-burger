@@ -97,12 +97,14 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.get_total_price().get_unprocessed().get_restaurants().defer(
+    orders = Order.objects.get_total_price()\
+        .get_unprocessed()\
+        .get_restaurants()\
+        .defer(
         'registered_at',
         'called_at',
         'delivered_at'
-    )
-    RestaurantMenuItem.objects.get_distances(orders)
+    ).get_distances()
 
     return render(request, template_name='order_items.html', context={
         'orders': orders,

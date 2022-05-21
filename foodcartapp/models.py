@@ -106,50 +106,9 @@ class Product(models.Model):
 
 class RestaurantMenuItemQuerySet(models.QuerySet):
 
-    def get_available_restaurants(self, orders):
-        available_restaurants = defaultdict(list)
-        available_rests_for_products = self.filter(
-            availability=True).prefetch_related('product', 'restaurant')
-
-        for rest_menu_item in available_rests_for_products:
-            available_restaurants[rest_menu_item.product].append(
-                rest_menu_item.restaurant)
-
-        for order in orders:
-            order_products_restaurants = []
-            order_products = order.products.all()
-
-            for product in order_products:
-                order_products_restaurants.append(
-                    available_restaurants[product])
-
-            order_restaurants = set.intersection(
-                *map(set, order_products_restaurants))
-
-            order.available_restaurants = order_restaurants
-        return orders
-
-    def get_distances(self, orders):
-        places_coords = defaultdict(tuple)
-        for order in orders:
-            try:
-                order.available_restaurants
-            except AttributeError:
-                self.get_available_restaurants(orders)
-            finally:
-                order_restaurants_w_distances = [(restaurant.name,
-                                                  count_distance(
-                                                      restaurant.address,
-                                                      order.address,
-                                                      places_coords))
-                                                 for restaurant in
-                                                 order.available_restaurants]
-
-                order.available_restaurants = sorted(
-                    order_restaurants_w_distances,
-                    key=lambda rest_data:
-                    rest_data[1])
-        return orders
+    def get_available_rests_for_products(self):
+        return self.filter(availability=True).prefetch_related('product',
+                                                               'restaurant')
 
 
 class RestaurantMenuItem(models.Model):
@@ -197,6 +156,50 @@ class OrderQuerySet(models.QuerySet):
 
     def get_unprocessed(self):
         return self.filter(status='unprocessed')
+
+    def get_available_restaurants(self):
+        available_restaurants = defaultdict(list)
+        available_rests_for_products = RestaurantMenuItem.objects.get_available_rests_for_products()
+
+        for rest_menu_item in available_rests_for_products:
+            available_restaurants[rest_menu_item.product].append(
+                rest_menu_item.restaurant)
+
+        for order in self:
+            order_products_restaurants = []
+            order_products = order.products.all()
+
+            for product in order_products:
+                order_products_restaurants.append(
+                    available_restaurants[product])
+
+            order_restaurants = set.intersection(
+                *map(set, order_products_restaurants))
+
+            order.available_restaurants = order_restaurants
+        return self
+
+    def get_distances(self):
+        places_coords = defaultdict(tuple)
+        for order in self:
+            try:
+                order.available_restaurants
+            except AttributeError:
+                self.get_available_restaurants()
+            finally:
+                order_restaurants_w_distances = [(restaurant.name,
+                                                  count_distance(
+                                                      restaurant.address,
+                                                      order.address,
+                                                      places_coords))
+                                                 for restaurant in
+                                                 order.available_restaurants]
+
+                order.available_restaurants = sorted(
+                    order_restaurants_w_distances,
+                    key=lambda rest_data:
+                    rest_data[1])
+        return self
 
 
 class Order(models.Model):
