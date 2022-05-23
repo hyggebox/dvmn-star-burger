@@ -147,7 +147,7 @@ class OrderQuerySet(models.QuerySet):
 
     def get_total_price(self):
         total_price = self.annotate(
-            total_price=Sum(F('quantity__quantity') * F('quantity__order_price'))
+            total_price=Sum(F('products_in_order__quantity') * F('products_in_order__order_price'))
         )
         return total_price
 
@@ -280,13 +280,13 @@ class ProductInOrder(models.Model):
         Product,
         on_delete=models.CASCADE,
         verbose_name='товар',
-        related_name='quantity',
+        related_name='in_order',
     )
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
         verbose_name='заказ',
-        related_name='quantity',
+        related_name='products_in_order',
     )
     quantity = models.SmallIntegerField(
         verbose_name='количество',
