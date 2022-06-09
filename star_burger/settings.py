@@ -50,8 +50,8 @@ ROLLBAR = {
     'environment': env.str('ROLLBAR_ENV_NAME', 'development'),
     'root': BASE_DIR,
 }
-
-rollbar.init(**ROLLBAR)
+#
+# rollbar.init(**ROLLBAR)
 
 ROOT_URLCONF = 'star_burger.urls'
 
@@ -94,9 +94,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 DATABASES = {
-    'default': dj_database_url.config(
+    'old': dj_database_url.config(
         default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
-    )
+    ),
+    'default': dj_database_url.config(default=env.str('DB_URL')),
 }
 
 AUTH_PASSWORD_VALIDATORS = [
