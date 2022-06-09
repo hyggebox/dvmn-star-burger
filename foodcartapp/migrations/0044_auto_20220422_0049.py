@@ -2,7 +2,7 @@ from django.db import migrations
 
 
 def get_prices(apps, schema_editor):
-    ProductInOrder = apps.get_model('foodcartapp', 'ProductInOrder')
+    ProductInOrder = apps.get_model('foodcartapp', 'ProductsQty')
 
     product_in_order_query = ProductInOrder.objects.all()
     for product_in_order in product_in_order_query.iterator():
@@ -13,7 +13,7 @@ def get_prices(apps, schema_editor):
 
 
 def move_backwards(apps, schema_editor):
-    ProductInOrder = apps.get_model('foodcartapp', 'ProductInOrder')
+    ProductInOrder = apps.get_model('foodcartapp', 'ProductsQty')
 
     product_in_order_query = ProductInOrder.objects.all()
     for product_in_order in product_in_order_query.iterator():
