@@ -5,8 +5,9 @@ django-phonenumber-field==6.1.0
 djangorestframework==3.13.1
 environs==9.5.0
 geopy==2.2.0
-phonenumbers==8.12.46
 Pillow==9.1.0
+phonenumbers==8.12.46
+psycopg2==2.9.3
 requests==2.27.1
 rollbar==0.16.2
 
