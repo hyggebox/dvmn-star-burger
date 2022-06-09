@@ -144,6 +144,8 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `YANDEX_API_KEY` — API-ключ Яндекса, полученный в [кабинете разработчика](https://developer.tech.yandex.ru/)
 - `ROLLBAR_TOKEN` — токен системы логирования [Rollbar](https://rollbar.com/)
+- `DB_URL` — [URL базы данных](https://github.com/jazzband/dj-database-url#url-schema)
+вида `postgres://USER:PASSWORD@HOST:PORT/NAME`
 
 ## Цели проекта
 
