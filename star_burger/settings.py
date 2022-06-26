@@ -1,8 +1,6 @@
 import os
 
 import dj_database_url
-import rollbar
-
 from environs import Env
 
 
@@ -50,8 +48,6 @@ ROLLBAR = {
     'environment': env.str('ROLLBAR_ENV_NAME', 'development'),
     'root': BASE_DIR,
 }
-#
-# rollbar.init(**ROLLBAR)
 
 ROOT_URLCONF = 'star_burger.urls'
 
