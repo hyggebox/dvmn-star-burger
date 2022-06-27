@@ -148,6 +148,13 @@ Parcel будет следить за файлами в каталоге `bundle
 - `DB_URL` — [URL базы данных](https://github.com/jazzband/dj-database-url#url-schema)
 вида `postgres://USER:PASSWORD@HOST:PORT/NAME`
 
+### Авто-деплой репозитория
+За автоматический деплой отвечает скрипт `deploy_starburger`. Поместите его в корневую папку проекта и запустите командой
+```commandline
+./deploy_starburger
+```
+
+
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
