@@ -154,6 +154,9 @@ Parcel будет следить за файлами в каталоге `bundle
 ./deploy_starburger
 ```
 
+## Демо-версия сайта
+Демо-версия сайта доступна по адресу [starproject.space](httstarproject.spaceps:///)
+
 
 ## Цели проекта
 
