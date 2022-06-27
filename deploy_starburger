@@ -1,4 +1,4 @@
-# #!/bin/bash
+# #!/usr/bin/bash
 set -e
 
 git pull
@@ -9,7 +9,7 @@ npm ci --include=dev
 
 ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 
-yes yes | python3.8 manage.py collectstatic
+python3.8 manage.py collectstatic --noinput
 python3.8 manage.py migrate
 
 systemctl daemon-reload
