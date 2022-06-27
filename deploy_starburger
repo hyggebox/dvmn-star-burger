@@ -9,10 +9,6 @@ npm ci --include=dev
 
 ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 
-export YANDEX_API_KEY=4741ff2d-1b67-4922-911e-3e16d96b61c9
-export ROLLBAR_TOKEN=69bbdc9cf64d42e68f1c6226a70aae5a
-export DB_URL=postgres://admin:DVMNStarburger@127.0.0.1:5432/starburgerdb
-
 yes yes | python3.8 manage.py collectstatic
 python3.8 manage.py migrate
 
