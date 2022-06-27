@@ -20,12 +20,10 @@ systemctl daemon-reload
 systemctl restart starburger
 systemctl reload nginx
 
-echo UPDATE DONE!
-
 COMMIT_NAME=`git rev-parse --short HEAD`
 
 curl -H "X-Rollbar-Access-Token: 69bbdc9cf64d42e68f1c6226a70aae5a" \
  -H "Content-Type: application/json" -X POST 'https://api.rollbar.com/api/1/deploy' \
  -d '{"environment": "production", "revision": "'"${COMMIT_NAME}"'", "local_username": "Asya", "comment": "Auto deployment", "status": "succeeded"}'
 
-
+echo UPDATE DONE!
