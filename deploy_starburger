@@ -4,13 +4,13 @@ set -e
 git pull
 source venv/bin/activate
 
-pip3.8 install -r requirements.txt
+venv/bin/python3 -m pip install -r requirements.txt
 npm ci --include=dev
 
 ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 
-python3.8 manage.py collectstatic --noinput
-python3.8 manage.py migrate
+venv/bin/python3 manage.py collectstatic --noinput
+venv/bin/python3 manage.py migrate
 
 systemctl daemon-reload
 systemctl restart starburger
@@ -23,3 +23,5 @@ curl -H "X-Rollbar-Access-Token: 69bbdc9cf64d42e68f1c6226a70aae5a" \
  -d '{"environment": "production", "revision": "'"${COMMIT_NAME}"'", "local_username": "Asya", "comment": "Auto deployment", "status": "succeeded"}'
 
 echo UPDATE DONE!
+
+
