@@ -1,0 +1,31 @@
+# #!/bin/bash
+set -e
+
+git pull
+source venv/bin/activate
+
+pip3.8 install -r requirements.txt
+npm ci --include=dev
+
+./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
+
+export YANDEX_API_KEY=4741ff2d-1b67-4922-911e-3e16d96b61c9
+export ROLLBAR_TOKEN=69bbdc9cf64d42e68f1c6226a70aae5a
+export DB_URL=postgres://admin:DVMNStarburger@127.0.0.1:5432/starburgerdb
+
+yes yes | python3.8 manage.py collectstatic
+python3.8 manage.py migrate
+
+systemctl daemon-reload
+systemctl restart starburger
+systemctl reload nginx
+
+echo UPDATE DONE!
+
+COMMIT_NAME=`git rev-parse --short HEAD`
+
+curl -H "X-Rollbar-Access-Token: 69bbdc9cf64d42e68f1c6226a70aae5a" \
+ -H "Content-Type: application/json" -X POST 'https://api.rollbar.com/api/1/deploy' \
+ -d '{"environment": "production", "revision": "'"${COMMIT_NAME}"'", "local_username": "Asya", "comment": "Auto deployment", "status": "succeeded"}'
+
+
