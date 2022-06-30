@@ -10,7 +10,7 @@ npm ci --include=dev
 ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 
 venv/bin/python3 manage.py collectstatic --noinput
-venv/bin/python3 manage.py migrate
+venv/bin/python3 manage.py migrate --noinput
 
 systemctl daemon-reload
 systemctl restart starburger
